@@ -4,6 +4,7 @@ import com.hostfully.hostfullywebapplication.exceptions.ResourceNotFoundExceptio
 import com.hostfully.hostfullywebapplication.models.Booking;
 import com.hostfully.hostfullywebapplication.repositories.BlockRepository;
 import com.hostfully.hostfullywebapplication.repositories.BookingRepository;
+import com.hostfully.hostfullywebapplication.utilities.OverlapChecker;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -18,21 +19,11 @@ import java.util.List;
 public class BookingController {
   private final BookingRepository bookingRepository;
   private final BlockRepository blockRepository;
+  private final OverlapChecker overlapChecker;
 
   @PostMapping("/bookings")
   public Booking createBooking(@RequestBody Booking booking) {
-    // Check for overlapping bookings
-    boolean hasBookingOverlap = bookingRepository.existsByStartDateBeforeAndEndDateAfter(booking.getEndDate(), booking.getStartDate());
-    if (hasBookingOverlap) {
-      throw new IllegalArgumentException("Booking overlaps with an existing booking.");
-    }
-
-    // Check for overlapping blocks
-    boolean hasBlockOverlap = blockRepository.existsByStartDateBeforeAndEndDateAfter(booking.getEndDate(), booking.getStartDate());
-    if (hasBlockOverlap) {
-      throw new IllegalArgumentException("Booking overlaps with an existing block.");
-    }
-
+    overlapChecker.checkForOverlaps(booking.getStartDate(), booking.getEndDate());
     return bookingRepository.save(booking);
   }
 
@@ -55,12 +46,7 @@ public class BookingController {
 
     booking.setStartDate(bookingDetails.getStartDate());
     booking.setEndDate(bookingDetails.getEndDate());
-
-    // Check for overlapping blocks
-    boolean hasBlockOverlap = blockRepository.existsByStartDateBeforeAndEndDateAfter(booking.getEndDate(), booking.getStartDate());
-    if (hasBlockOverlap) {
-      throw new IllegalArgumentException("Booking overlaps with an existing block.");
-    }
+    overlapChecker.checkForOverlaps(booking.getStartDate(), booking.getEndDate());
 
     Booking updatedBooking = bookingRepository.save(booking);
     return ResponseEntity.ok(updatedBooking);

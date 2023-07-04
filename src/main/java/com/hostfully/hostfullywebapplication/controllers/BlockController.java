@@ -4,6 +4,8 @@ import com.hostfully.hostfullywebapplication.exceptions.ResourceNotFoundExceptio
 import com.hostfully.hostfullywebapplication.models.Block;
 import com.hostfully.hostfullywebapplication.repositories.BlockRepository;
 import com.hostfully.hostfullywebapplication.repositories.BookingRepository;
+import com.hostfully.hostfullywebapplication.utilities.OverlapChecker;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -18,21 +20,11 @@ import java.util.List;
 public class BlockController {
   private final BlockRepository blockRepository;
   private final BookingRepository bookingRepository;
+  private final OverlapChecker overlapChecker;
 
   @PostMapping("/blocks")
   public Block createBlock(@RequestBody Block block) {
-
-    // Check for overlapping bookings
-    boolean hasBookingOverlap = bookingRepository.existsByStartDateBeforeAndEndDateAfter(block.getEndDate(), block.getStartDate());
-    if (hasBookingOverlap) {
-      throw new IllegalArgumentException("Booking overlaps with an existing booking.");
-    }
-
-    boolean hasBlockOverlap = blockRepository.existsByStartDateBeforeAndEndDateAfter(block.getEndDate(), block.getStartDate());
-    if (hasBlockOverlap) {
-      throw new IllegalArgumentException("Booking overlaps with an existing block.");
-    }
-
+    overlapChecker.checkForOverlaps(block.getStartDate(), block.getEndDate());
     return blockRepository.save(block);
   }
 
@@ -55,6 +47,8 @@ public class BlockController {
 
     block.setStartDate(blockDetails.getStartDate());
     block.setEndDate(blockDetails.getEndDate());
+
+    overlapChecker.checkForOverlaps(block.getStartDate(), block.getEndDate());
 
     Block updatedBlock = blockRepository.save(block);
     return ResponseEntity.ok(updatedBlock);

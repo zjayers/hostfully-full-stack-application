@@ -35,6 +35,7 @@ const Form: React.FC<FormProps> = ({ endpoint, refetch }) => {
         await createBlockOrBooking(endpoint, { startDate, endDate });
       }
       refetch();
+      setId('');
     } catch (error) {
       setErrorMessage((error as Error).message);
       setOpen(true);
@@ -47,6 +48,7 @@ const Form: React.FC<FormProps> = ({ endpoint, refetch }) => {
         await deleteBlockOrBooking(endpoint, id);
       }
       refetch();
+      setId('');
     } catch (error) {
       setErrorMessage((error as Error).message);
       setOpen(true);

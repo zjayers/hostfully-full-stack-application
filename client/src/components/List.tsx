@@ -58,7 +58,7 @@ const List: React.FC<ListProps> = ({ data, loading, error, refetch, endpoint }) 
                 </Card>
             ))
         ) : (
-            <Typography variant="body1">Create bookings to see them here!</Typography>
+            <Typography variant="body1">Please schedule some times to see them here!</Typography>
         )}
       </Box>
   );
