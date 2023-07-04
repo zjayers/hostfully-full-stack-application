@@ -86,9 +86,4 @@ Make sure you have the following prerequisites installed on your system:
    - The username should be `sa`, and no password is required.
    - Click "Connect" to access the H2 database console.
 
-
-
-5. (Optional) Accessing the API Swagger Documentation:
-   - To access the API Swagger docs, go to `http://localhost:8080/swagger-ui/`.
-
 ---

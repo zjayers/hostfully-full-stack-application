@@ -27,45 +27,4 @@ public class HostfullyWebApplication {
   public static void main(String[] args) {
     SpringApplication.run(HostfullyWebApplication.class, args);
   }
-
-  /**
-   * Configuration class for SpringFox (Swagger) and CORS settings.
-   */
-  @Configuration
-  public class SpringFoxConfig {
-
-    /**
-     * Configures SpringFox (Swagger) for API documentation generation.
-     *
-     * @return The configured Docket instance.
-     */
-    @Bean
-    @Profile("dev")
-    public Docket api() {
-      return new Docket(DocumentationType.SWAGGER_2)
-          .select()
-          .apis(RequestHandlerSelectors.any())
-          .paths(PathSelectors.any())
-          .build();
-    }
-
-    /**
-     * Configures CORS (Cross-Origin Resource Sharing) for development profile.
-     *
-     * @return The configured WebMvcConfigurer instance.
-     */
-    @Bean
-    @Profile("dev")
-    public WebMvcConfigurer corsConfigurer() {
-      return new WebMvcConfigurer() {
-        @Override
-        public void addCorsMappings(CorsRegistry registry) {
-          registry.addMapping("/**") // for all endpoints
-              .allowedOrigins("http://localhost:3000") // allowed origin
-              .allowedMethods("*") // allow all methods
-              .allowedHeaders("*"); // allow all headers
-        }
-      };
-    }
-  }
 }
