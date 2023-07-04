@@ -1,27 +1,28 @@
 package com.hostfully.hostfullywebapplication.controllers;
 
-import com.hostfully.hostfullywebapplication.exceptions.ResourceNotFoundException;
-import com.hostfully.hostfullywebapplication.models.Block;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.hostfully.hostfullywebapplication.models.Booking;
 import com.hostfully.hostfullywebapplication.repositories.BlockRepository;
 import com.hostfully.hostfullywebapplication.repositories.BookingRepository;
+import com.hostfully.hostfullywebapplication.utilities.OverlapChecker;
+import java.time.LocalDate;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.time.LocalDate;
-import java.util.Optional;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(BookingController.class)
 public class BookingControllerTest {
@@ -35,22 +36,25 @@ public class BookingControllerTest {
   @MockBean
   private BlockRepository blockRepository;
 
+  @MockBean
+  private OverlapChecker overlapChecker;
+
   @BeforeEach
   public void setup() {
-    when(bookingRepository.existsByStartDateBeforeAndEndDateAfter(any(LocalDate.class), any(LocalDate.class)))
-        .thenReturn(false);
-    when(blockRepository.existsByStartDateBeforeAndEndDateAfter(any(LocalDate.class), any(LocalDate.class)))
+    when(overlapChecker.hasOverlap(any(LocalDate.class), any(LocalDate.class)))
         .thenReturn(false);
   }
 
   @Test
   public void testCreateBooking() throws Exception {
+    // Arrange
     Booking newBooking = new Booking();
     newBooking.setStartDate(LocalDate.of(2022, 3, 1));
     newBooking.setEndDate(LocalDate.of(2022, 3, 7));
 
     when(bookingRepository.save(any(Booking.class))).thenReturn(newBooking);
 
+    // Act and Assert
     mockMvc.perform(post("/api/bookings")
             .contentType(MediaType.APPLICATION_JSON)
             .content("{ \"startDate\": \"2022-03-01\", \"endDate\": \"2022-03-07\" }"))
@@ -62,12 +66,14 @@ public class BookingControllerTest {
 
   @Test
   public void testGetAllBookings() throws Exception {
+    // Act and Assert
     mockMvc.perform(get("/api/bookings"))
         .andExpect(status().isOk());
   }
 
   @Test
   public void testGetBookingById() throws Exception {
+    // Arrange
     Booking booking = new Booking();
     booking.setId(1L);
     booking.setStartDate(LocalDate.of(2022, 3, 1));
@@ -75,6 +81,7 @@ public class BookingControllerTest {
 
     when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
 
+    // Act and Assert
     mockMvc.perform(get("/api/bookings/1"))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -85,6 +92,7 @@ public class BookingControllerTest {
 
   @Test
   public void testUpdateBooking() throws Exception {
+    // Arrange
     Booking existingBooking = new Booking();
     existingBooking.setId(1L);
     existingBooking.setStartDate(LocalDate.of(2022, 3, 1));
@@ -98,6 +106,7 @@ public class BookingControllerTest {
     when(bookingRepository.findById(1L)).thenReturn(Optional.of(existingBooking));
     when(bookingRepository.save(any(Booking.class))).thenReturn(updatedBooking);
 
+    // Act and Assert
     mockMvc.perform(put("/api/bookings/1")
             .contentType(MediaType.APPLICATION_JSON)
             .content("{ \"startDate\": \"2022-04-01\", \"endDate\": \"2022-04-07\" }"))
@@ -110,6 +119,7 @@ public class BookingControllerTest {
 
   @Test
   public void testDeleteBooking() throws Exception {
+    // Arrange
     Booking booking = new Booking();
     booking.setId(1L);
     booking.setStartDate(LocalDate.of(2022, 3, 1));
@@ -117,6 +127,7 @@ public class BookingControllerTest {
 
     when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
 
+    // Act and Assert
     mockMvc.perform(delete("/api/bookings/1"))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))

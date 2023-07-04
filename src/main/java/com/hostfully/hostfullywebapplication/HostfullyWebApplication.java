@@ -13,15 +13,32 @@ import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 
+/**
+ * The HostfullyWebApplication class is the main entry point for the application.
+ */
 @SpringBootApplication
 public class HostfullyWebApplication {
 
+  /**
+   * The main method that starts the application.
+   *
+   * @param args The command line arguments.
+   */
   public static void main(String[] args) {
     SpringApplication.run(HostfullyWebApplication.class, args);
   }
 
+  /**
+   * Configuration class for SpringFox (Swagger) and CORS settings.
+   */
   @Configuration
   public class SpringFoxConfig {
+
+    /**
+     * Configures SpringFox (Swagger) for API documentation generation.
+     *
+     * @return The configured Docket instance.
+     */
     @Bean
     @Profile("dev")
     public Docket api() {
@@ -32,6 +49,11 @@ public class HostfullyWebApplication {
           .build();
     }
 
+    /**
+     * Configures CORS (Cross-Origin Resource Sharing) for development profile.
+     *
+     * @return The configured WebMvcConfigurer instance.
+     */
     @Bean
     @Profile("dev")
     public WebMvcConfigurer corsConfigurer() {
