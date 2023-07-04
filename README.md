@@ -8,7 +8,7 @@
                                        (____/ 
 ```
 
-# Running the Spring Application with React Frontend
+# Hostfully Booking Application - Java Spring API w/ React Front End
 
 This project is a Spring application with a React frontend that communicates with its own API. It utilizes an H2 database for data storage.
 
